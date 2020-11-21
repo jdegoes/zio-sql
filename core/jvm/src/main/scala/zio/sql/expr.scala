@@ -166,9 +166,18 @@ trait ExprModule extends NewtypesModule with FeaturesModule with OpsModule {
     sealed case class FunctionCall2[F1, F2, A, B, C, Z: TypeTag](
       param1: Expr[F1, A, B],
       param2: Expr[F2, A, C],
+      paramDelimiter: String,
       function: FunctionDef[(B, C), Z]
     ) extends InvariantExpr[Features.Union[F1, F2], A, Z] {
       def typeTag: TypeTag[Z] = implicitly[TypeTag[Z]]
+
+    }
+    object FunctionCall2 {
+      def apply[F1, F2, A, B, C, Z: TypeTag](
+        param1: Expr[F1, A, B],
+        param2: Expr[F2, A, C],
+        function: FunctionDef[(B, C), Z]
+      ): FunctionCall2[F1, F2, A, B, C, Z] = new FunctionCall2(param1, param2, ",", function)
     }
 
     sealed case class FunctionCall3[F1, F2, F3, A, B, C, D, Z: TypeTag](
@@ -208,7 +217,11 @@ trait ExprModule extends NewtypesModule with FeaturesModule with OpsModule {
     def Max[F, A, B: TypeTag](expr: Expr[F, A, B])       = AggregationDef[B, B](FunctionName("max"))(expr)
   }
 
-  sealed case class FunctionDef[-A, +B](name: FunctionName) { self =>
+  trait FunctionDef[-A, +B] {
+    def name: FunctionName
+  }
+
+  sealed case class FunctionDefStandard[-A, +B](name: FunctionName) extends FunctionDef[A, B] { self =>
 
     def apply[F, Source, B1 >: B](param1: Expr[F, Source, A])(implicit typeTag: TypeTag[B1]): Expr[F, Source, B1] =
       Expr.FunctionCall1(param1, self: FunctionDef[A, B1])
@@ -246,45 +259,60 @@ trait ExprModule extends NewtypesModule with FeaturesModule with OpsModule {
     }
   }
 
-  object FunctionDef {
+  sealed case class FunctionDefWithDelimiter[-A, +B](name: FunctionName, delimiter: String) extends FunctionDef[A, B] {
+    self =>
+
+    def apply[F1, F2, Source, P1, P2, B1 >: B](param1: Expr[F1, Source, P1], param2: Expr[F2, Source, P2])(implicit
+      ev: (P1, P2) <:< A,
+      typeTag: TypeTag[B1]
+    ): Expr[F1 :||: F2, Source, B1] =
+      Expr.FunctionCall2(param1, param2, self.delimiter, self.narrow[(P1, P2)]: FunctionDef[(P1, P2), B1])
+
+    def narrow[C](implicit ev: C <:< A): FunctionDef[C, B] = {
+      val _ = ev
+      self.asInstanceOf[FunctionDef[C, B]]
+    }
+  }
+
+  object FunctionDefStandard {
     //math functions
-    val Abs         = FunctionDef[Double, Double](FunctionName("abs"))
-    val Acos        = FunctionDef[Double, Double](FunctionName("acos"))
-    val Asin        = FunctionDef[Double, Double](FunctionName("asin"))
-    val Atan        = FunctionDef[Double, Double](FunctionName("atan"))
-    val Ceil        = FunctionDef[Double, Double](FunctionName("ceil"))
-    val Cos         = FunctionDef[Double, Double](FunctionName("cos"))
-    val Exp         = FunctionDef[Double, Double](FunctionName("exp"))
-    val Floor       = FunctionDef[Double, Double](FunctionName("floor"))
+    val Abs         = FunctionDefStandard[Double, Double](FunctionName("abs"))
+    val Acos        = FunctionDefStandard[Double, Double](FunctionName("acos"))
+    val Asin        = FunctionDefStandard[Double, Double](FunctionName("asin"))
+    val Atan        = FunctionDefStandard[Double, Double](FunctionName("atan"))
+    val Ceil        = FunctionDefStandard[Double, Double](FunctionName("ceil"))
+    val Cos         = FunctionDefStandard[Double, Double](FunctionName("cos"))
+    val Exp         = FunctionDefStandard[Double, Double](FunctionName("exp"))
+    val Floor       = FunctionDefStandard[Double, Double](FunctionName("floor"))
     //val Log = FunctionDef[Double, Double](FunctionName("log")) //not part of SQL 2011 spec
-    val Ln          = FunctionDef[Double, Double](FunctionName("ln"))
-    val Mod         = FunctionDef[(Double, Double), Double](FunctionName("mod"))
-    val Power       = FunctionDef[(Double, Double), Double](FunctionName("power"))
-    val Round       = FunctionDef[(Double, Int), Double](FunctionName("round"))
-    val Sign        = FunctionDef[Double, Double](FunctionName("sign"))
-    val Sin         = FunctionDef[Double, Double](FunctionName("sin"))
-    val Sqrt        = FunctionDef[Double, Double](FunctionName("sqrt"))
-    val Tan         = FunctionDef[Double, Double](FunctionName("tan"))
-    val WidthBucket = FunctionDef[(Double, Double, Double, Int), Int](FunctionName("width bucket"))
+    val Ln          = FunctionDefStandard[Double, Double](FunctionName("ln"))
+    val Mod         = FunctionDefStandard[(Double, Double), Double](FunctionName("mod"))
+    val Power       = FunctionDefStandard[(Double, Double), Double](FunctionName("power"))
+    val Round       = FunctionDefStandard[(Double, Int), Double](FunctionName("round"))
+    val Sign        = FunctionDefStandard[Double, Double](FunctionName("sign"))
+    val Sin         = FunctionDefStandard[Double, Double](FunctionName("sin"))
+    val Sqrt        = FunctionDefStandard[Double, Double](FunctionName("sqrt"))
+    val Tan         = FunctionDefStandard[Double, Double](FunctionName("tan"))
+    val WidthBucket = FunctionDefStandard[(Double, Double, Double, Int), Int](FunctionName("width bucket"))
 
     //string functions
-    val Ascii       = FunctionDef[String, Int](FunctionName("ascii"))
-    val CharLength  = FunctionDef[String, Int](FunctionName("character length"))
-    val Concat      = FunctionDef[(String, String), String](FunctionName("concat"))
-    val Lower       = FunctionDef[String, String](FunctionName("lower"))
-    val Ltrim       = FunctionDef[String, String](FunctionName("ltrim"))
-    val OctetLength = FunctionDef[String, Int](FunctionName("octet length"))
-    val Overlay     = FunctionDef[(String, String, Int, Option[Int]), String](FunctionName("overlay"))
-    val Position    = FunctionDef[(String, String), Int](FunctionName("position"))
-    val Replace     = FunctionDef[(String, String), String](FunctionName("replace"))
-    val Rtrim       = FunctionDef[String, String](FunctionName("rtrim"))
-    val Substring   = FunctionDef[(String, Int, Option[Int]), String](FunctionName("substring"))
+    val Ascii       = FunctionDefStandard[String, Int](FunctionName("ascii"))
+    val CharLength  = FunctionDefStandard[String, Int](FunctionName("character length"))
+    val Concat      = FunctionDefStandard[(String, String), String](FunctionName("concat"))
+    val Lower       = FunctionDefStandard[String, String](FunctionName("lower"))
+    val Ltrim       = FunctionDefStandard[String, String](FunctionName("ltrim"))
+    val OctetLength = FunctionDefStandard[String, Int](FunctionName("octet length"))
+    val Overlay     = FunctionDefStandard[(String, String, Int, Option[Int]), String](FunctionName("overlay"))
+    val Position    = FunctionDefStandard[(String, String), Int](FunctionName("position"))
+    val Replace     = FunctionDefStandard[(String, String, String), String](FunctionName("replace"))
+    val Rtrim       = FunctionDefStandard[String, String](FunctionName("rtrim"))
+    val Substring   = FunctionDefStandard[(String, Int, Option[Int]), String](FunctionName("substring"))
     //TODO substring regex
-    val Trim        = FunctionDef[String, String](FunctionName("trim"))
-    val Upper       = FunctionDef[String, String](FunctionName("upper"))
+    val Trim        = FunctionDefStandard[String, String](FunctionName("trim"))
+    val Upper       = FunctionDefStandard[String, String](FunctionName("upper"))
 
     // date functions
-    val CurrentTimestamp = FunctionDef[Nothing, Instant](FunctionName("current_timestamp"))
+    val CurrentTimestamp = FunctionDefStandard[Nothing, Instant](FunctionName("current_timestamp"))
   }
 
   sealed trait Set[F, -A] {

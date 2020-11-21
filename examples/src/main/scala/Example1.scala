@@ -15,7 +15,7 @@ object Example1 extends Sql {
 
   val age2 :*: name2 :*: _ = table2.columns
 
-  import FunctionDef._
+  import FunctionDefStandard._
   import AggregationDef._
 
   val queried =

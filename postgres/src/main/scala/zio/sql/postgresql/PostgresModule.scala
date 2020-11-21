@@ -1,13 +1,68 @@
 package zio.sql.postgresql
 
+import java.time.LocalDate
+
 import zio.sql.Jdbc
 
 /**
  */
 trait PostgresModule extends Jdbc { self =>
 
+  sealed trait TimestampPart
+  case object Century         extends TimestampPart
+  case object Day             extends TimestampPart
+  case object Decade          extends TimestampPart
+  case object Dow             extends TimestampPart
+  case object Doy             extends TimestampPart
+  case object Epoch           extends TimestampPart
+  case object Hour            extends TimestampPart
+  case object IsoDow          extends TimestampPart
+  case object IsoYear         extends TimestampPart
+  case object Microseconds    extends TimestampPart
+  case object Millennium      extends TimestampPart
+  case object Milliseconds    extends TimestampPart
+  case object Minute          extends TimestampPart
+  case object Month           extends TimestampPart
+  case object Quarter         extends TimestampPart
+  case object Second          extends TimestampPart
+  case object Timezone        extends TimestampPart
+  case object Timezone_hour   extends TimestampPart
+  case object Timezone_minute extends TimestampPart
+  case object Week            extends TimestampPart
+  case object Year            extends TimestampPart
+
+  sealed trait PostgresTypeTagExtension[+A]
+
+  object PostgresTypeTagExtension {
+    implicit case object TTimestampPartCentury         extends PostgresTypeTagExtension[Century.type]
+    implicit case object TTimestampPartDay             extends PostgresTypeTagExtension[Day.type]
+    implicit case object TTimestampPartDecade          extends PostgresTypeTagExtension[Decade.type]
+    implicit case object TTimestampPartDow             extends PostgresTypeTagExtension[Dow.type]
+    implicit case object TTimestampPartDoy             extends PostgresTypeTagExtension[Doy.type]
+    implicit case object TTimestampPartEpoch           extends PostgresTypeTagExtension[Epoch.type]
+    implicit case object TTimestampPartHour            extends PostgresTypeTagExtension[Hour.type]
+    implicit case object TTimestampPartIsoDow          extends PostgresTypeTagExtension[IsoDow.type]
+    implicit case object TTimestampPartIsoYear         extends PostgresTypeTagExtension[IsoYear.type]
+    implicit case object TTimestampPartMicroseconds    extends PostgresTypeTagExtension[Microseconds.type]
+    implicit case object TTimestampPartMillennium      extends PostgresTypeTagExtension[Millennium.type]
+    implicit case object TTimestampPartMilliseconds    extends PostgresTypeTagExtension[Milliseconds.type]
+    implicit case object TTimestampPartMinute          extends PostgresTypeTagExtension[Minute.type]
+    implicit case object TTimestampPartMonth           extends PostgresTypeTagExtension[Month.type]
+    implicit case object TTimestampPartQuarter         extends PostgresTypeTagExtension[Quarter.type]
+    implicit case object TTimestampPartSecond          extends PostgresTypeTagExtension[Second.type]
+    implicit case object TTimestampPartTimezone        extends PostgresTypeTagExtension[Timezone.type]
+    implicit case object TTimestampPartTimezone_hour   extends PostgresTypeTagExtension[Timezone_hour.type]
+    implicit case object TTimestampPartTimezone_minute extends PostgresTypeTagExtension[Timezone_minute.type]
+    implicit case object TTimestampPartWeek            extends PostgresTypeTagExtension[Week.type]
+    implicit case object TTimestampPartYear            extends PostgresTypeTagExtension[Year.type]
+  }
+
+  type TypeTagExtension[+A] = PostgresTypeTagExtension[A]
+
   object PostgresFunctionDef {
-    val Sind = FunctionDef[Double, Double](FunctionName("sind"))
+    val Sind    = FunctionDefStandard[Double, Double](FunctionName("sind"))
+    // FIXME: extract should be available also for other date like types (e.g. LocalDateTime, Instant, etc.)
+    val Extract = FunctionDefWithDelimiter[(TimestampPart, LocalDate), Double](FunctionName("extract"), " FROM ")
   }
 
   override def renderRead(read: self.Read[_]): String = {
@@ -45,11 +100,11 @@ trait PostgresModule extends Jdbc { self =>
         builder.append("(")
         buildExpr(param)
         val _ = builder.append(")")
-      case Expr.FunctionCall2(param1, param2, function)                 =>
+      case Expr.FunctionCall2(param1, param2, paramDelimiter, function) =>
         builder.append(function.name.name)
         builder.append("(")
         buildExpr(param1)
-        builder.append(",")
+        builder.append(paramDelimiter)
         buildExpr(param2)
         val _ = builder.append(")")
       case Expr.FunctionCall3(param1, param2, param3, function)         =>

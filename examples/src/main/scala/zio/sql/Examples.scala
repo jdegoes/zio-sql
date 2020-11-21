@@ -4,7 +4,7 @@ import zio.sql.sqlserver.SqlServerModule
 
 object Examples extends App with ShopSchema with SqlServerModule {
   import this.AggregationDef._
-  import this.FunctionDef._
+  import this.FunctionDefStandard._
   import this.OrderDetails._
   import this.Orders._
   import this.Users._
