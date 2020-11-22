@@ -108,7 +108,11 @@ trait ExprModule extends NewtypesModule with FeaturesModule with OpsModule {
 
     def typeTagOf[A](expr: Expr[_, _, A]): TypeTag[A] = expr.asInstanceOf[InvariantExpr[_, _, A]].typeTag
 
-    implicit def literal[A: TypeTag](a: A): Expr[Features.Literal, Any, A] = Expr.Literal(a)
+    implicit def literal[A](a: A)(implicit typeTag: TypeTag[A]): Expr[Features.Literal, Any, A] = typeTag match {
+      case TypeTag.TLocalDateTime => Expr.literal(s"TIMESTAMP '$a'").asInstanceOf[Expr[Features.Literal, Any, A]]
+      case _ => Expr.Literal(a)
+    }
+
 
     def exprName[F, A, B](expr: Expr[F, A, B]): Option[String] =
       expr match {
