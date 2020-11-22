@@ -1,5 +1,6 @@
 package zio.sql.postgresql
 
+import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
@@ -96,6 +97,20 @@ object FunctionDefSpec extends PostgresRunnableSpec with ShopSchema {
       val query = select(Sind(30.0)) from customers
 
       val expected = 0.5
+
+      val testResult = execute(query).to[Double, Double](identity)
+
+      val assertion = for {
+        r <- testResult.runCollect
+      } yield assert(r.head)(equalTo(expected))
+
+      assertion.mapErrorCause(cause => Cause.stackless(cause.untraced))
+    },
+    testM("date_part") {
+      val instant = Instant.parse("1970-01-01T00:00:00Z")
+      val query   = select(DatePart("'hour'", instant)) from customers
+
+      val expected = 0d
 
       val testResult = execute(query).to[Double, Double](identity)
 
