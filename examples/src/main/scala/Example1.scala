@@ -43,4 +43,10 @@ object Example1 extends Sql {
       .set(age, age + 2)
       .set(name, "foo")
       .where(age > 100)
+
+  val colsToInsert = age ++ name
+  val inserted     =
+    insert(table, colsToInsert.value)
+      .values(10)
+      .values("test")
 }
