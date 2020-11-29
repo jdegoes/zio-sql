@@ -82,6 +82,7 @@ trait TableModule { self: ExprModule with SelectModule =>
 
   object :*: {
     def unapply[A, B](tuple: (A, B)): Some[(A, B)] = Some(tuple)
+
   }
 
   sealed case class Column[A: TypeTag](name: String) {

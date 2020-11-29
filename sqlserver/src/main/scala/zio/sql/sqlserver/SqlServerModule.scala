@@ -76,6 +76,7 @@ trait SqlServerModule extends Jdbc { self =>
         builder.append(",")
         buildExpr(param4)
         val _ = builder.append(")")
+      case Expr.ExprDialectSpecific(_)                                  => ??? //todo
     }
 
     def buildReadString(read: self.Read[_]): Unit =

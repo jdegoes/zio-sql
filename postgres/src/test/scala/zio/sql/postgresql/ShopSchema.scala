@@ -15,6 +15,8 @@ trait ShopSchema extends Jdbc { self =>
 
     val customerId :*: dob :*: fName :*: lName :*: verified :*: createdString :*: createdTimestamp :*: _ =
       customers.columns
+
+      val test = customerId ++ fName ++ lName ++ dob
   }
   object Orders        {
     val orders = (uuid("id") ++ uuid("customer_id") ++ localDate("order_date")).table("orders")

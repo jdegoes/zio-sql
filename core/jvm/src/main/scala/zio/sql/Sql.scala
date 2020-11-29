@@ -1,6 +1,9 @@
 package zio.sql
 
-trait Sql extends SelectModule with DeleteModule with UpdateModule with ExprModule with TableModule { self =>
+import zio.sql.rendering.{ RenderModule, Rendering }
+
+trait Sql extends SelectModule with DeleteModule with UpdateModule with ExprModule with TableModule with RenderModule {
+  self =>
 
   /*
    * (SELECT *, "foo", table.a + table.b AS sum... FROM table WHERE cond) UNION (SELECT ... FROM table)
@@ -14,6 +17,9 @@ trait Sql extends SelectModule with DeleteModule with UpdateModule with ExprModu
    *
    * SELECT ARBITRARY(age), COUNT(*) FROM person GROUP BY age
    */
+
+  type SqlRenderer[-A] <: Rendering[A]
+
   def select[F, A, B <: SelectionSet[A]](selection: Selection[F, A, B]): SelectBuilder[F, A, B] =
     SelectBuilder(selection)
 

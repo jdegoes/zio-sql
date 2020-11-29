@@ -16,6 +16,11 @@ object FunctionDefSpec extends PostgresRunnableSpec with ShopSchema {
   import PostgresFunctionDef._
 
   val spec = suite("Postgres FunctionDef")(
+    test("custom expr rendering") {
+      val query  = select(Overlay("w333333rce", "resou", 3, 5)) from customers
+      val render = renderRead(query) //SELECT overlay(w333333rce placing resou from 3 for 5) FROM customers
+      assert(render)(equalTo("SELECT overlay('w333333rce' placing 'resou' from 3 for 5) FROM customers"))
+    },           //todo fix rendering of strings
     testM("isfinite") {
       val query = select(IsFinite(Instant.now)) from customers
 
