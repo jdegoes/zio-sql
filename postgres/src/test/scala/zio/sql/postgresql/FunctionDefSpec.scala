@@ -151,6 +151,21 @@ object FunctionDefSpec extends PostgresRunnableSpec with ShopSchema {
         } yield assert(r.head)(equalTo(expected))
 
         assertion.mapErrorCause(cause => Cause.stackless(cause.untraced))
+      },
+      testM("to_ascii") {
+        val query = select(ToAscii("Karél")) from customers
+
+        val testResult = execute(query).to[String, String](identity)
+
+        val assertion = testResult.runCollect.fold(
+          failure => assert(failure.getMessage)(equalTo("ERROR: encoding conversion from UTF8 to ASCII not supported")),
+          _ =>
+            assert(true)(
+              isFalse
+            ) // Conversion is only supported from LATIN1, LATIN2, LATIN9, and WIN1250 encodings. Our test DB encoding is UTF-8
+        )
+
+        assertion.mapErrorCause(cause => Cause.stackless(cause.untraced))
       }
     ),
     testM("abs") {
