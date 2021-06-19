@@ -37,7 +37,7 @@ create table order_details
     unit_price Number(15,2) not null
 );
 
-insert all 
+insert all
 	into customers (id, first_name, last_name, verified, dob) values ('60b01fc9-c902-4468-8d49-3c0f989def37', 'Ronald', 'Russell', 1, TO_DATE('1983-01-05','YYYY-MM-DD'))   
 	into customers (id, first_name, last_name, verified, dob) values ('f76c9ace-be07-4bf3-bd4c-4a9c62882e64', 'Terrence', 'Noel', 1, TO_DATE('1999-11-02','YYYY-MM-DD'))
 	into customers (id, first_name, last_name, verified, dob) values ('784426a5-b90a-4759-afbb-571b7a0ba35e', 'Mila', 'Paterso', 1, TO_DATE('1990-11-16','YYYY-MM-DD'))
@@ -46,12 +46,12 @@ insert all
 select * from dual;
 
 insert all
-	into products (id, name, description, image_url) values('7368ABF4-AED2-421F-B426-1725DE756895', 'Thermometer', 'Make sure you don''t have a fever (could be covid!)', 'https://images.pexels.com/photos/3987152/pexels-photo-3987152.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260')
+	into products (id, name, description, image_url) values ('7368ABF4-AED2-421F-B426-1725DE756895', 'Thermometer', 'Make sure you don''t have a fever (could be covid!)', 'https://images.pexels.com/photos/3987152/pexels-photo-3987152.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260')
 	into products (id, name, description, image_url) values ('4C770002-4C8F-455A-96FF-36A8186D5290', 'Slippers', 'Keep your feet warm this winter', 'https://images.pexels.com/photos/1989843/pexels-photo-1989843.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260')
-	into products (id, name, description, image_url) values('05182725-F5C8-4FD6-9C43-6671E179BF55', 'Mouse Pad', 'Who uses these anyway?', 'https://images.pexels.com/photos/3944396/pexels-photo-3944396.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260')
-	into products(id, name, description, image_url) values('105A2701-EF93-4E25-81AB-8952CC7D9DAA', 'Pants', 'Avoid a lawsuit, wear pants to work today!', 'https://images.pexels.com/photos/52518/jeans-pants-blue-shop-52518.jpeg?cs=srgb&dl=blue-jeans-clothes-shopping-52518.jpg&fm=jpg')
-	into products(id, name, description, image_url) values('F35B0053-855B-4145-ABE1-DC62BC1FDB96', 'Nail File', 'Keep those nails looking good', 'https://images.pexels.com/photos/3997373/pexels-photo-3997373.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260')
-	into products(id, name, description, image_url) values('D5137D3A-894A-4109-9986-E982541B434F', 'Teddy Bear', 'Because sometimes you just need something to hug', 'https://images.pexels.com/photos/1019471/stuffed-bear-teddy-child-girl-1019471.jpeg?cs=srgb&dl=closeup-photography-of-brown-teddy-bear-1019471.jpg&fm=jpg')
+	into products (id, name, description, image_url) values ('05182725-F5C8-4FD6-9C43-6671E179BF55', 'Mouse Pad', 'Who uses these anyway?', 'https://images.pexels.com/photos/3944396/pexels-photo-3944396.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260')
+	into products (id, name, description, image_url) values ('105A2701-EF93-4E25-81AB-8952CC7D9DAA', 'Pants', 'Avoid a lawsuit, wear pants to work today!', 'https://images.pexels.com/photos/52518/jeans-pants-blue-shop-52518.jpeg?cs=srgb&dl=blue-jeans-clothes-shopping-52518.jpg&fm=jpg')
+	into products (id, name, description, image_url) values ('F35B0053-855B-4145-ABE1-DC62BC1FDB96', 'Nail File', 'Keep those nails looking good', 'https://images.pexels.com/photos/3997373/pexels-photo-3997373.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260')
+	into products (id, name, description, image_url) values ('D5137D3A-894A-4109-9986-E982541B434F', 'Teddy Bear', 'Because sometimes you just need something to hug', 'https://images.pexels.com/photos/1019471/stuffed-bear-teddy-child-girl-1019471.jpeg?cs=srgb&dl=closeup-photography-of-brown-teddy-bear-1019471.jpg&fm=jpg')
 select * from dual;
 
 insert all

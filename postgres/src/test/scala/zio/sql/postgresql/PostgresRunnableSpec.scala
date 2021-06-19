@@ -1,10 +1,11 @@
 package zio.sql.postgresql
 
+import java.util.Properties
+
+import zio.Has
+import zio.sql.{ ConnectionPoolConfig, JdbcRunnableSpec, TestContainer }
 import zio.test._
 import zio.test.environment.TestEnvironment
-import java.util.Properties
-import zio.sql.{ ConnectionPoolConfig, JdbcRunnableSpec, TestContainer }
-import zio.Has
 
 trait PostgresRunnableSpec extends JdbcRunnableSpec with PostgresModule {
 

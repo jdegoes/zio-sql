@@ -5,7 +5,7 @@ import zio.sql.Jdbc
 trait OracleModule extends Jdbc { self =>
 
   object OracleFunctionDef {
-    val Sind = FunctionDef[Double, Double](FunctionName("sind"))
+    val BitAnd = FunctionDef[(Int, Int), Int](FunctionName("bitand"))
   }
 
   def buildExpr[A, B](expr: self.Expr[_, A, B], builder: StringBuilder): Unit = expr match {
