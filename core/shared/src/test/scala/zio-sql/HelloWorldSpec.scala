@@ -1,5 +1,7 @@
 package zio.sql
 
+import java.io.IOException
+
 import zio._
 import zio.console._
 import zio.test._
@@ -10,7 +12,7 @@ import HelloWorld._
 
 object HelloWorld {
 
-  def sayHello: ZIO[Console, Nothing, Unit] =
+  def sayHello: ZIO[Console, IOException, Unit] =
     console.putStrLn("Hello, World!")
 }
 

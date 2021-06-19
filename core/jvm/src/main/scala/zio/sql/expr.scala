@@ -136,7 +136,7 @@ trait ExprModule extends NewtypesModule with FeaturesModule with OpsModule {
       def typeTag: TypeTag[B] = typeTagOf(base)
     }
 
-    sealed case class Property[F, -A, +B](base: Expr[F, A, B], op: PropertyOp) extends InvariantExpr[F, A, Boolean] {
+    sealed case class Property[F, A, +B](base: Expr[F, A, B], op: PropertyOp) extends InvariantExpr[F, A, Boolean] {
       def typeTag: TypeTag[Boolean] = TypeTag.TBoolean
     }
 

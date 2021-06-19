@@ -1,6 +1,6 @@
 package zio.sql
 
-trait OpsModule extends TypeTagModule { self: SelectModule =>
+trait OpsModule extends TypeTagModule { self: SelectModule with ExprModule with TableModule =>
 
   sealed trait Operator {
     val symbol: String
