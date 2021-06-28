@@ -207,10 +207,12 @@ lazy val sqlserver = project
   .settings(buildInfoSettings("zio.sql.sqlserver"))
   .settings(
     libraryDependencies ++= Seq(
-      "org.testcontainers" % "testcontainers"   % testcontainersVersion % Test,
-      "org.testcontainers" % "database-commons" % testcontainersVersion % Test,
-      "org.testcontainers" % "mssqlserver"      % testcontainersVersion % Test,
-      "org.testcontainers" % "jdbc"             % testcontainersVersion % Test
+      "org.testcontainers" % "testcontainers"                    % testcontainersVersion      % Test,
+      "org.testcontainers" % "database-commons"                  % testcontainersVersion      % Test,
+      "org.testcontainers" % "mssqlserver"                       % testcontainersVersion      % Test,
+      "org.testcontainers" % "jdbc"                              % testcontainersVersion      % Test,
+      "com.microsoft.sqlserver" % "mssql-jdbc" % "9.2.1.jre11" % Test,
+      "com.dimafeng"       %% "testcontainers-scala-mssqlserver" % testcontainersScalaVersion % Test
     )
   )
   .settings(testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"))

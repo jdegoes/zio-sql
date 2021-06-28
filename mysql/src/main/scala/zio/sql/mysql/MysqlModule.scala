@@ -154,6 +154,14 @@ trait MysqlModule extends Jdbc { self =>
         //The outer reference in this type test cannot be checked at run time?!
         case sourceTable: self.Table.Source          =>
           render(sourceTable.name)
+        case Table.SelectedTable(crossType, left, select, on) => {
+          // CROSS and OUTER APPLY are only supported in SQL SERVER, so we rewrite them to JOINs
+          //TODO write tests if thats a safe thing to do
+          crossType match {
+            case CrossType.CrossApply => renderTable(Table.Joined(JoinType.Inner, left, select.table.get, on))
+            case CrossType.OuterApply => renderTable(Table.Joined(JoinType.LeftOuter, left, select.table.get, on))
+          }
+        }
         case Table.Joined(joinType, left, right, on) =>
           renderTable(left)
           render(joinType match {

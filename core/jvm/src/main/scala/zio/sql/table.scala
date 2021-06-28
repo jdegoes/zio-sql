@@ -101,6 +101,13 @@ trait TableModule { self: ExprModule with SelectModule =>
     case object FullOuter  extends JoinType
   }
 
+  sealed trait CrossType 
+
+  object CrossType {
+    case object CrossApply extends CrossType
+    case object OuterApply extends CrossType
+  }
+
   /**
    * (left join right) on (...)
    */
@@ -119,6 +126,12 @@ trait TableModule { self: ExprModule with SelectModule =>
     final def rightOuter[That](that: Table.Aux[That]): Table.JoinBuilder[self.TableType, That] =
       new Table.JoinBuilder[self.TableType, That](JoinType.RightOuter, self, that)
 
+    final def crossApply[F, Cols, TableSelectionType](select: Read.Select[F, Cols, TableSelectionType]): Table.SelectedTableBuilder[F, self.TableType, TableSelectionType, Cols] = 
+      new Table.SelectedTableBuilder[F, self.TableType, TableSelectionType, Cols](CrossType.CrossApply, self, select)
+
+    final def outerApply[F, Cols, TableSelectionType](select: Read.Select[F, Cols, TableSelectionType]): Table.SelectedTableBuilder[F, self.TableType, TableSelectionType, Cols] = 
+      new Table.SelectedTableBuilder[F, self.TableType, TableSelectionType, Cols](CrossType.OuterApply, self, select)
+
     val columnsUntyped: List[Column.Untyped]
   }
 
@@ -127,6 +140,28 @@ trait TableModule { self: ExprModule with SelectModule =>
     class JoinBuilder[A, B](joinType: JoinType, left: Table.Aux[A], right: Table.Aux[B]) {
       def on[F](expr: Expr[F, A with B, Boolean]): Table.Aux[A with B] =
         Joined(joinType, left, right, expr)
+    }
+
+    case class SelectedTableBuilder[F1, A, B, Cols](crossType: CrossType, left: Table.Aux[A], select: Read.Select[F1, Cols, B]) {
+      def where[F2](expr: Expr[F2, A with B, Boolean]): Table.Aux[A with B] =
+        SelectedTable[F1, F2, Cols, A, B](crossType, left, select, expr)
+    }
+
+    /**
+      * Table where right side is a selection out of another table. 
+      * TODO do we want to support "table valued function" for sql server and replace Select with a function?
+      * 
+      * example
+      * elect(fName ++ lName ++ orderDate).from(customers.crossApply(select(orderDate).from(orders)).where(fkCustomerId === customerId))
+      */
+    sealed case class SelectedTable[F1, F2, Cols, A, B](
+            crossType: CrossType,
+            left: Table.Aux[A],
+            select: Read.Select[F1, Cols, B], 
+            expr: Expr[F2, A with B, Boolean]) extends Table {
+      type TableType = A with B
+      
+      val columnsUntyped: List[Column.Untyped] = left.columnsUntyped ++ select.table.get.columnsUntyped
     }
 
     type Aux[A] = Table { type TableType = A }

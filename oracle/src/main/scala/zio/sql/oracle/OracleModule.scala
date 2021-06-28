@@ -262,6 +262,14 @@ trait OracleModule extends Jdbc { self =>
       //The outer reference in this type test cannot be checked at run time?!
       case sourceTable: self.Table.Source          =>
         val _ = builder.append(sourceTable.name)
+      case Table.SelectedTable(crossType, left, select, on) => {
+          // CROSS and OUTER APPLY are only supported in SQL SERVER, so we rewrite them to JOINs
+          //TODO write tests if thats a safe thing to do
+          crossType match {
+            case CrossType.CrossApply => buildTable(Table.Joined(JoinType.Inner, left, select.table.get, on), builder)
+            case CrossType.OuterApply => buildTable(Table.Joined(JoinType.LeftOuter, left, select.table.get, on), builder)
+          }
+        }
       case Table.Joined(joinType, left, right, on) =>
         buildTable(left, builder)
         builder.append(joinType match {

@@ -253,11 +253,32 @@ trait SqlServerModule extends Jdbc { self =>
             case _          => () //todo what do we do if we don't have a name?
           }
       }
-    def buildTable(table: Table): Unit                                           =
+
+    def buildTable(table: Table): Unit =
       table match {
         //The outer reference in this type test cannot be checked at run time?!
         case sourceTable: self.Table.Source          =>
           val _ = builder.append(sourceTable.name)
+
+        case Table.SelectedTable(crossType, left, select, on) => {
+              buildTable(left)
+
+              crossType match {
+                case CrossType.CrossApply => builder.append(" CROSS APPLY ( ")
+                case CrossType.OuterApply => builder.append(" OUTER APPLY ( ")
+              }
+          
+              builder.append("SELECT ")
+              buildSelection(select.selection.value)
+              builder.append(" FROM ")
+              buildTable(select.table.get)
+              builder.append(" WHERE ")
+              buildExpr(on)
+
+              builder.append(" ) ")
+              val _ = buildTable(select.table.get)
+        }
+
         case Table.Joined(joinType, left, right, on) =>
           buildTable(left)
           builder.append(joinType match {
