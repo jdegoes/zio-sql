@@ -29,7 +29,7 @@ Connection pool | :white_check_mark:
 Feature | PostgreSQL | SQL Server | Oracle | MySQL
 :------------ | :-------------| :-------------| :-------------| :-------------
 Render Read | :white_check_mark: | :white_check_mark: | | :white_check_mark: |
-Render Delete | :white_check_mark: | | | :white_check_mark: | 
+Render Delete | :white_check_mark: | :white_check_mark: | | :white_check_mark: | 
 Render Update | :white_check_mark: | | | :white_check_mark: |
 Render Insert | | | |
 Functions     | :white_check_mark: | | | :white_check_mark: |
